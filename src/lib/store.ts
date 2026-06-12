@@ -6,30 +6,46 @@ import path from 'path';
 const DATA_FILE = path.join(process.cwd(), 'data', 'watchlist.json');
 
 function ensureDataDir() {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch {
+    // read-only filesystem — fall through
   }
 }
 
 export function readWatchlist(): WatchlistData {
-  ensureDataDir();
-  if (!fs.existsSync(DATA_FILE)) {
-    const initial: WatchlistData = {
-      properties: sampleProperties,
-      lastUpdated: new Date().toISOString(),
-    };
-    fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
-    return initial;
+  try {
+    ensureDataDir();
+    if (!fs.existsSync(DATA_FILE)) {
+      const initial: WatchlistData = {
+        properties: sampleProperties,
+        lastUpdated: new Date().toISOString(),
+      };
+      try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
+      } catch {
+        // can't write — return in-memory default
+      }
+      return initial;
+    }
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+    return JSON.parse(raw) as WatchlistData;
+  } catch {
+    return { properties: sampleProperties, lastUpdated: new Date().toISOString() };
   }
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-  return JSON.parse(raw) as WatchlistData;
 }
 
 export function writeWatchlist(data: WatchlistData): void {
-  ensureDataDir();
-  data.lastUpdated = new Date().toISOString();
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  try {
+    ensureDataDir();
+    data.lastUpdated = new Date().toISOString();
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  } catch {
+    // silent fail on read-only fs
+  }
 }
 
 export function addProperty(property: Property): WatchlistData {
