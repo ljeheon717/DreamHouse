@@ -23,6 +23,7 @@ import {
   TrendingUp,
   XCircle,
   Zap,
+  ChevronDown,
 } from 'lucide-react';
 
 const facilityIcons: Record<string, string> = {
@@ -36,9 +37,43 @@ const facilityIcons: Record<string, string> = {
   gym: '🏋️',
 };
 
+const facilityLabels: Record<string, string> = {
+  station: '最寄駅',
+  supermarket: 'スーパー',
+  hospital: '医療',
+  school: '学校',
+  park: '公園',
+  nursery: '保育所',
+  library: '図書館',
+  gym: 'スポーツ',
+};
+
+// 都道府県ごとにグループ化
+const PREFECTURE_GROUPS: { prefecture: string; emoji: string }[] = [
+  { prefecture: '東京都', emoji: '🗼' },
+  { prefecture: '神奈川県', emoji: '⚓' },
+  { prefecture: '愛知県', emoji: '🏯' },
+  { prefecture: '大阪府', emoji: '🏙️' },
+  { prefecture: '京都府', emoji: '⛩️' },
+  { prefecture: '兵庫県', emoji: '🌉' },
+  { prefecture: '福岡県', emoji: '🍜' },
+  { prefecture: '宮城県', emoji: '🌿' },
+  { prefecture: '北海道', emoji: '❄️' },
+];
+
 export default function AreaPage() {
   const [selectedKey, setSelectedKey] = useState(areaAnalyses[0].areaKey);
+  const [activePref, setActivePref] = useState<string | null>(null);
+
   const area = areaAnalyses.find((a) => a.areaKey === selectedKey) ?? areaAnalyses[0];
+
+  // 현재 선택된 도도부현 자동 반영
+  const currentPref = area.prefecture;
+
+  const grouped = PREFECTURE_GROUPS.map((pg) => ({
+    ...pg,
+    areas: areaAnalyses.filter((a) => a.prefecture === pg.prefecture),
+  })).filter((g) => g.areas.length > 0);
 
   const popData = area.population.map((p) => ({
     year: String(p.year),
@@ -48,11 +83,17 @@ export default function AreaPage() {
     総人口: p.total,
   }));
 
-  const ageData = area.population.slice(-1).map((p) => [
-    { name: '30歳未満', value: p.under30 },
-    { name: '30-65歳', value: 100 - p.under30 - p.over65 },
-    { name: '65歳以上', value: p.over65 },
-  ])[0];
+  const ageData = [
+    { name: '30歳未満', value: area.population[area.population.length - 1].under30 },
+    {
+      name: '30〜65歳',
+      value:
+        100 -
+        area.population[area.population.length - 1].under30 -
+        area.population[area.population.length - 1].over65,
+    },
+    { name: '65歳以上', value: area.population[area.population.length - 1].over65 },
+  ];
 
   const scores = [
     { label: '交通・利便性', value: area.walkScore, color: '#3b82f6' },
@@ -61,68 +102,106 @@ export default function AreaPage() {
     { label: '防災・リスク', value: area.disasterRiskScore, color: '#8b5cf6' },
   ];
   const overallScore = Math.round(scores.reduce((s, x) => s + x.value, 0) / scores.length);
+  const growthPct = (
+    ((area.population[area.population.length - 1].total - area.population[0].total) /
+      area.population[0].total) *
+    100
+  ).toFixed(1);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">エリア分析</h1>
         <p className="text-gray-500 text-sm mt-1">人口動態・周辺環境・将来性を総合評価</p>
       </div>
 
-      {/* Area Selector */}
-      <div className="flex flex-wrap gap-2">
-        {areaAnalyses.map((a) => (
-          <button
-            key={a.areaKey}
-            onClick={() => setSelectedKey(a.areaKey)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
-              selectedKey === a.areaKey
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
-            }`}
-          >
-            {a.prefecture} {a.areaJp}
-          </button>
-        ))}
+      {/* ── 都道府県 × エリア 2段セレクター ── */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-4">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+          <MapPin size={12} />
+          都道府県・エリアを選択
+        </div>
+
+        {/* 都道府県タブ */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {grouped.map((g) => {
+            const isActive = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
+            return (
+              <button
+                key={g.prefecture}
+                onClick={() => setActivePref(isActive ? null : g.prefecture)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                  isActive
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                }`}
+              >
+                <span>{g.emoji}</span>
+                <span>{g.prefecture}</span>
+                <span className="text-xs opacity-70">({g.areas.length})</span>
+                <ChevronDown
+                  size={12}
+                  className={`transition-transform ${isActive ? 'rotate-180' : ''}`}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* エリアボタン */}
+        {grouped.map((g) => {
+          const show = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
+          if (!show) return null;
+          return (
+            <div key={g.prefecture} className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+              {g.areas.map((a) => (
+                <button
+                  key={a.areaKey}
+                  onClick={() => {
+                    setSelectedKey(a.areaKey);
+                    setActivePref(null);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
+                    selectedKey === a.areaKey
+                      ? 'bg-blue-50 text-blue-700 border-blue-200 font-medium'
+                      : 'bg-gray-50 text-gray-600 border-gray-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
+                  }`}
+                >
+                  {a.areaJp}
+                </button>
+              ))}
+            </div>
+          );
+        })}
+
+        {/* 現在選択中 */}
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
+          <MapPin size={14} className="text-blue-500" />
+          現在選択中：
+          <span className="font-semibold text-gray-900">
+            {area.prefecture} {area.areaJp}
+          </span>
+        </div>
       </div>
 
-      {/* Header */}
+      {/* Header Card */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
         <div className="flex items-center gap-3 mb-4">
           <MapPin size={20} />
           <h2 className="text-xl font-bold">
-            {area.prefecture} {area.areaJp}
+            {area.prefecture}&nbsp;{area.areaJp}
           </h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white/10 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold">{overallScore}</div>
-            <div className="text-xs text-blue-100 mt-1">総合スコア /100</div>
-          </div>
-          <div className="bg-white/10 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold">{area.avgCommuteMins}分</div>
-            <div className="text-xs text-blue-100 mt-1">平均通勤時間</div>
-          </div>
-          <div className="bg-white/10 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold">{area.avgRentYield}%</div>
-            <div className="text-xs text-blue-100 mt-1">想定賃貸利回り</div>
-          </div>
-          <div className="bg-white/10 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold">
-              {(
-                ((area.population[area.population.length - 1].total -
-                  area.population[0].total) /
-                  area.population[0].total) *
-                100
-              ).toFixed(1)}%
-            </div>
-            <div className="text-xs text-blue-100 mt-1">5年間人口増加率</div>
-          </div>
+          <MetaCard label="総合スコア" value={`${overallScore}`} sub="/100" />
+          <MetaCard label="平均通勤時間" value={`${area.avgCommuteMins}分`} sub="" />
+          <MetaCard label="想定賃貸利回り" value={`${area.avgRentYield}%`} sub="" />
+          <MetaCard label="5年人口増加率" value={`+${growthPct}%`} sub="" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Score Radar */}
+        {/* Score Bars */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h3 className="font-semibold text-gray-900 mb-4">エリアスコア評価</h3>
           <div className="space-y-3">
@@ -136,7 +215,7 @@ export default function AreaPage() {
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all"
+                    className="h-full rounded-full transition-all duration-500"
                     style={{ width: `${value}%`, backgroundColor: color }}
                   />
                 </div>
@@ -153,7 +232,9 @@ export default function AreaPage() {
               <div className="bg-green-50 rounded-lg p-2">
                 <ShieldCheck size={14} className="mx-auto text-green-600 mb-1" />
                 <div className="text-xs text-gray-500">治安</div>
-                <div className="font-bold text-sm text-gray-900">{area.safetyScore >= 80 ? '良好' : area.safetyScore >= 65 ? '普通' : '注意'}</div>
+                <div className="font-bold text-sm text-gray-900">
+                  {area.safetyScore >= 80 ? '良好' : area.safetyScore >= 65 ? '普通' : '注意'}
+                </div>
               </div>
               <div className="bg-yellow-50 rounded-lg p-2">
                 <TrendingUp size={14} className="mx-auto text-yellow-600 mb-1" />
@@ -171,8 +252,15 @@ export default function AreaPage() {
             <BarChart data={popData} margin={{ top: 0, right: 0, left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => typeof v === 'number' ? v.toLocaleString() : String(v)} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(v) =>
+                  typeof v === 'number' ? v.toLocaleString() : String(v)
+                }
+              />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Bar dataKey="流入" fill="#3b82f6" radius={[2, 2, 0, 0]} />
               <Bar dataKey="流出" fill="#f87171" radius={[2, 2, 0, 0]} />
@@ -181,15 +269,22 @@ export default function AreaPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Population Total Trend */}
+        {/* Population Total */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="font-semibold text-gray-900 mb-4">総人口推移 &amp; 年齢構成</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">総人口推移 &amp; 年齢構成（最新）</h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={popData} margin={{ top: 0, right: 0, left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 10000).toFixed(0)}万`} />
-              <Tooltip formatter={(v) => `${typeof v === 'number' ? v.toLocaleString() : v}人`} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `${(v / 10000).toFixed(0)}万`}
+              />
+              <Tooltip
+                formatter={(v) =>
+                  `${typeof v === 'number' ? v.toLocaleString() : v}人`
+                }
+              />
               <Line type="monotone" dataKey="総人口" stroke="#6366f1" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -208,19 +303,18 @@ export default function AreaPage() {
           <h3 className="font-semibold text-gray-900 mb-4">周辺施設</h3>
           <div className="space-y-2">
             {area.facilities.map((f, i) => (
-              <div key={i} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+              <div
+                key={i}
+                className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0"
+              >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{facilityIcons[f.type] ?? '📍'}</span>
                   <div>
                     <div className="text-sm font-medium text-gray-800">{f.name}</div>
-                    <div className="text-xs text-gray-400">
-                      {f.type === 'station' ? '最寄駅' : f.type === 'hospital' ? '医療' : f.type === 'school' ? '学校' : f.type === 'park' ? '公園' : f.type === 'supermarket' ? 'スーパー' : f.type === 'nursery' ? '保育所' : f.type === 'gym' ? 'スポーツ' : '施設'}
-                    </div>
+                    <div className="text-xs text-gray-400">{facilityLabels[f.type] ?? '施設'}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-blue-600">徒歩{f.distanceMin}分</div>
-                </div>
+                <div className="text-sm font-semibold text-blue-600">徒歩{f.distanceMin}分</div>
               </div>
             ))}
           </div>
@@ -276,6 +370,18 @@ export default function AreaPage() {
           </ul>
         </div>
       </div>
+    </div>
+  );
+}
+
+function MetaCard({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div className="bg-white/10 rounded-xl p-3 text-center">
+      <div className="text-xl font-bold">
+        {value}
+        {sub && <span className="text-sm font-normal ml-0.5 opacity-80">{sub}</span>}
+      </div>
+      <div className="text-xs text-blue-100 mt-1">{label}</div>
     </div>
   );
 }
