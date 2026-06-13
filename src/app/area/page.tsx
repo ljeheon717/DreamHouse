@@ -48,10 +48,12 @@ const facilityLabels: Record<string, string> = {
   gym: 'スポーツ',
 };
 
-// 都道府県ごとにグループ化
-const PREFECTURE_GROUPS: { prefecture: string; emoji: string }[] = [
-  { prefecture: '東京都', emoji: '🗼' },
-  { prefecture: '神奈川県', emoji: '⚓' },
+// 首都圏を先頭にグループ化
+const PREFECTURE_GROUPS: { prefecture: string; emoji: string; highlight?: boolean }[] = [
+  { prefecture: '東京都', emoji: '🗼', highlight: true },
+  { prefecture: '千葉県', emoji: '🌾', highlight: true },
+  { prefecture: '神奈川県', emoji: '⚓', highlight: true },
+  { prefecture: '埼玉県', emoji: '🌸', highlight: true },
   { prefecture: '愛知県', emoji: '🏯' },
   { prefecture: '大阪府', emoji: '🏙️' },
   { prefecture: '京都府', emoji: '⛩️' },
@@ -74,6 +76,9 @@ export default function AreaPage() {
     ...pg,
     areas: areaAnalyses.filter((a) => a.prefecture === pg.prefecture),
   })).filter((g) => g.areas.length > 0);
+
+  const highlightGroups = grouped.filter((g) => g.highlight);
+  const otherGroups = grouped.filter((g) => !g.highlight);
 
   const popData = area.population.map((p) => ({
     year: String(p.year),
@@ -122,38 +127,70 @@ export default function AreaPage() {
           都道府県・エリアを選択
         </div>
 
-        {/* 都道府県タブ */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {grouped.map((g) => {
-            const isActive = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
-            return (
-              <button
-                key={g.prefecture}
-                onClick={() => setActivePref(isActive ? null : g.prefecture)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
-                  isActive
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
-                }`}
-              >
-                <span>{g.emoji}</span>
-                <span>{g.prefecture}</span>
-                <span className="text-xs opacity-70">({g.areas.length})</span>
-                <ChevronDown
-                  size={12}
-                  className={`transition-transform ${isActive ? 'rotate-180' : ''}`}
-                />
-              </button>
-            );
-          })}
+        {/* 首都圏 */}
+        <div className="mb-2">
+          <div className="text-xs text-blue-600 font-semibold mb-2 flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+            首都圏（東京・千葉・横浜・埼玉）
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {highlightGroups.map((g) => {
+              const isActive = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
+              return (
+                <button
+                  key={g.prefecture}
+                  onClick={() => setActivePref(isActive ? null : g.prefecture)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                    isActive
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                  }`}
+                >
+                  <span>{g.emoji}</span>
+                  <span>{g.prefecture}</span>
+                  <span className="text-xs opacity-70">({g.areas.length})</span>
+                  <ChevronDown size={12} className={`transition-transform ${isActive ? 'rotate-180' : ''}`} />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* エリアボタン */}
-        {grouped.map((g) => {
+        {/* その他 */}
+        <div className="mb-1">
+          <div className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
+            その他の地域
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {otherGroups.map((g) => {
+              const isActive = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
+              return (
+                <button
+                  key={g.prefecture}
+                  onClick={() => setActivePref(isActive ? null : g.prefecture)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                    isActive
+                      ? 'bg-gray-700 text-white border-gray-700 shadow-sm'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <span>{g.emoji}</span>
+                  <span>{g.prefecture}</span>
+                  <span className="text-xs opacity-70">({g.areas.length})</span>
+                  <ChevronDown size={12} className={`transition-transform ${isActive ? 'rotate-180' : ''}`} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* エリアボタン（展開） */}
+        {[...highlightGroups, ...otherGroups].map((g) => {
           const show = activePref === g.prefecture || (!activePref && currentPref === g.prefecture);
           if (!show) return null;
           return (
-            <div key={g.prefecture} className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+            <div key={g.prefecture} className="flex flex-wrap gap-2 pt-3 mt-2 border-t border-gray-100">
               {g.areas.map((a) => (
                 <button
                   key={a.areaKey}
