@@ -43,19 +43,19 @@ export const marketTrends: MarketTrend[] = [
   { area: 'Saitama', areaJp: 'さいたま市', month: '2026-04', avgPricePerSqm: 50.0, totalListings: 4710, medianPrice: 4230 },
   { area: 'Saitama', areaJp: 'さいたま市', month: '2026-05', avgPricePerSqm: 50.7, totalListings: 4520, medianPrice: 4280 },
   { area: 'Saitama', areaJp: 'さいたま市', month: '2026-06', avgPricePerSqm: 51.4, totalListings: 4350, medianPrice: 4330 },
-  // 千葉県西部（市川・船橋・松戸・柏）
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-07', avgPricePerSqm: 37.5, totalListings: 5120, medianPrice: 3250 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-08', avgPricePerSqm: 37.9, totalListings: 5010, medianPrice: 3290 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-09', avgPricePerSqm: 38.4, totalListings: 4890, medianPrice: 3340 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-10', avgPricePerSqm: 38.9, totalListings: 5080, medianPrice: 3380 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-11', avgPricePerSqm: 38.7, totalListings: 5340, medianPrice: 3360 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2025-12', avgPricePerSqm: 39.4, totalListings: 4820, medianPrice: 3420 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-01', avgPricePerSqm: 39.9, totalListings: 4730, medianPrice: 3470 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-02', avgPricePerSqm: 40.5, totalListings: 4980, medianPrice: 3520 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-03', avgPricePerSqm: 41.2, totalListings: 5610, medianPrice: 3590 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-04', avgPricePerSqm: 41.0, totalListings: 5730, medianPrice: 3570 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-05', avgPricePerSqm: 41.6, totalListings: 5490, medianPrice: 3620 },
-  { area: 'ChibaWest', areaJp: '千葉県西部', month: '2026-06', avgPricePerSqm: 42.3, totalListings: 5280, medianPrice: 3680 },
+  // 千葉市
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-07', avgPricePerSqm: 34.2, totalListings: 3920, medianPrice: 2950 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-08', avgPricePerSqm: 34.6, totalListings: 3850, medianPrice: 2980 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-09', avgPricePerSqm: 35.0, totalListings: 3760, medianPrice: 3020 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-10', avgPricePerSqm: 35.5, totalListings: 3900, medianPrice: 3060 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-11', avgPricePerSqm: 35.3, totalListings: 4100, medianPrice: 3040 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2025-12', avgPricePerSqm: 35.9, totalListings: 3700, medianPrice: 3090 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-01', avgPricePerSqm: 36.4, totalListings: 3630, medianPrice: 3130 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-02', avgPricePerSqm: 36.9, totalListings: 3820, medianPrice: 3170 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-03', avgPricePerSqm: 37.6, totalListings: 4310, medianPrice: 3230 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-04', avgPricePerSqm: 37.4, totalListings: 4400, medianPrice: 3210 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-05', avgPricePerSqm: 38.0, totalListings: 4220, medianPrice: 3260 },
+  { area: 'Chiba', areaJp: '千葉市', month: '2026-06', avgPricePerSqm: 38.6, totalListings: 4060, medianPrice: 3310 },
 ];
 
 // ════════════════════════════════

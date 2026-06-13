@@ -17,7 +17,7 @@ const AREAS = [
   { key: 'Tokyo23', label: '東京23区', color: '#3b82f6' },
   { key: 'Yokohama', label: '横浜市', color: '#f97316' },
   { key: 'Saitama', label: 'さいたま市', color: '#10b981' },
-  { key: 'ChibaWest', label: '千葉県西部', color: '#8b5cf6' },
+  { key: 'Chiba', label: '千葉市', color: '#8b5cf6' },
 ];
 
 type Metric = 'avgPricePerSqm' | 'medianPrice' | 'totalListings';
@@ -58,7 +58,7 @@ export default function MarketPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">市場トレンド</h1>
-        <p className="text-gray-500 text-sm mt-1">首都圏（東京・横浜・さいたま・千葉）の価格推移を確認できます</p>
+        <p className="text-gray-500 text-sm mt-1">首都圏 各都県の代表都市（東京23区・横浜市・さいたま市・千葉市）の価格推移</p>
       </div>
 
       {/* Summary Cards */}

@@ -26,7 +26,7 @@ export default function DashboardPage() {
       ? Math.round(properties.reduce((s, p) => s + p.price, 0) / properties.length)
       : 0;
 
-  const areas = ['Tokyo23', 'Yokohama', 'Saitama', 'ChibaWest'];
+  const areas = ['Tokyo23', 'Yokohama', 'Saitama', 'Chiba'];
   const latestByArea = areas.map((area) => {
     const areaData = marketTrends
       .filter((t) => t.area === area)
