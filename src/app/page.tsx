@@ -1,5 +1,6 @@
 import { readWatchlist } from '@/lib/store';
-import { areaAnalyses, marketTrends, sampleNews } from '@/lib/data';
+import { marketTrends, sampleNews } from '@/lib/data';
+import { rankAreas } from '@/lib/popularity';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -40,7 +41,7 @@ export default function DashboardPage() {
   });
 
   const recentNews = sampleNews.slice(0, 4);
-  const topAreas = areaAnalyses.slice(0, 2);
+  const ranked = rankAreas(5);
 
   return (
     <div className="space-y-8">
@@ -111,55 +112,52 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Area Spotlights */}
+      {/* Popular Area Ranking */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">注目エリア スポットライト</h2>
+          <h2 className="text-lg font-bold text-gray-900">🔥 人気エリアランキング</h2>
           <Link href="/area" className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
             全エリアを見る <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {topAreas.map((area) => {
-            const latest = area.population[area.population.length - 1];
-            const oldest = area.population[0];
-            const growth = (((latest.total - oldest.total) / oldest.total) * 100).toFixed(1);
-            const overall = Math.round(
-              (area.walkScore + area.safetyScore + area.developmentScore + area.disasterRiskScore) / 4
-            );
-            return (
-              <Link
-                key={area.areaKey}
-                href="/area"
-                className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow block"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="font-semibold text-gray-900">{area.prefecture} {area.areaJp}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">人口 {(latest.total / 10000).toFixed(0)}万人</div>
-                  </div>
-                  <div className="bg-blue-50 text-blue-700 text-sm font-bold px-3 py-1 rounded-full">
-                    {overall}/100
-                  </div>
+        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+          {ranked.map((r) => (
+            <Link
+              key={r.area.areaKey}
+              href={`/area?area=${r.area.areaKey}`}
+              className="flex items-center gap-4 px-5 py-3.5 hover:bg-blue-50/60 transition-colors"
+            >
+              <div className="w-9 text-center shrink-0">
+                {r.rank <= 3 ? (
+                  <span className="text-2xl">{['🥇', '🥈', '🥉'][r.rank - 1]}</span>
+                ) : (
+                  <span className="inline-flex w-7 h-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 text-sm font-bold">
+                    {r.rank}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-gray-900">{r.area.areaJp}</span>
+                  <span className="text-xs text-gray-400">{r.area.prefecture}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="bg-green-50 rounded-lg p-2">
-                    <div className="font-bold text-green-700">+{growth}%</div>
-                    <div className="text-gray-500">5年人口増</div>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-2">
-                    <div className="font-bold text-blue-700">{area.avgRentYield}%</div>
-                    <div className="text-gray-500">想定利回り</div>
-                  </div>
-                  <div className="bg-yellow-50 rounded-lg p-2">
-                    <div className="font-bold text-yellow-700">{area.avgCommuteMins}分</div>
-                    <div className="text-gray-500">平均通勤</div>
-                  </div>
+                <div className="text-xs text-gray-500 truncate mt-0.5">{r.highlight}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="flex items-center gap-1 justify-end text-sm font-bold text-red-500">
+                  <TrendingUp size={13} />
+                  +{r.growthPct.toFixed(1)}%
                 </div>
-              </Link>
-            );
-          })}
+                <div className="text-xs text-gray-400 mt-0.5">
+                  利回り {r.area.avgRentYield}%
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
+        <p className="text-xs text-gray-400 mt-2">
+          ※ 人気度 = 5年人口増加率（勢い）＋ 開発・将来性スコアの合成指標
+        </p>
       </section>
 
       {/* Watchlist Preview */}

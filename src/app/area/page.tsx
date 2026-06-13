@@ -1,7 +1,8 @@
 'use client';
 
 import { areaAnalyses } from '@/lib/data';
-import { useState } from 'react';
+import { rankAreas } from '@/lib/popularity';
+import { useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -56,9 +57,19 @@ const PREFECTURE_GROUPS: { prefecture: string; emoji: string }[] = [
   { prefecture: '埼玉県', emoji: '🌸' },
 ];
 
+const TOP3_KEYS = rankAreas(3).map((r) => r.area.areaKey);
+
 export default function AreaPage() {
   const [selectedKey, setSelectedKey] = useState(areaAnalyses[0].areaKey);
   const [activePref, setActivePref] = useState<string | null>(null);
+
+  // ダッシュボードのランキングからの遷移（?area=key）に対応
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get('area');
+    if (param && areaAnalyses.some((a) => a.areaKey === param)) {
+      setSelectedKey(param);
+    }
+  }, []);
 
   const area = areaAnalyses.find((a) => a.areaKey === selectedKey) ?? areaAnalyses[0];
 
@@ -159,6 +170,7 @@ export default function AreaPage() {
                       : 'bg-gray-50 text-gray-600 border-gray-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
                   }`}
                 >
+                  {TOP3_KEYS.includes(a.areaKey) && '🔥'}
                   {a.areaJp}
                 </button>
               ))}
