@@ -15,9 +15,9 @@ import {
 
 const AREAS = [
   { key: 'Tokyo23', label: '東京23区', color: '#3b82f6' },
-  { key: 'Osaka', label: '大阪市', color: '#f97316' },
-  { key: 'Nagoya', label: '名古屋市', color: '#10b981' },
-  { key: 'Fukuoka', label: '福岡市', color: '#8b5cf6' },
+  { key: 'Yokohama', label: '横浜市', color: '#f97316' },
+  { key: 'Saitama', label: 'さいたま市', color: '#10b981' },
+  { key: 'ChibaWest', label: '千葉県西部', color: '#8b5cf6' },
 ];
 
 type Metric = 'avgPricePerSqm' | 'medianPrice' | 'totalListings';
@@ -29,7 +29,7 @@ const metricConfig: Record<Metric, { label: string; unit: string }> = {
 };
 
 export default function MarketPage() {
-  const [selectedAreas, setSelectedAreas] = useState<string[]>(['Tokyo23', 'Osaka']);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>(['Tokyo23', 'Yokohama']);
   const [metric, setMetric] = useState<Metric>('avgPricePerSqm');
 
   const months = Array.from(new Set(marketTrends.map((t) => t.month))).sort();
@@ -58,7 +58,7 @@ export default function MarketPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">市場トレンド</h1>
-        <p className="text-gray-500 text-sm mt-1">主要都市の不動産価格推移を確認できます</p>
+        <p className="text-gray-500 text-sm mt-1">首都圏（東京・横浜・さいたま・千葉）の価格推移を確認できます</p>
       </div>
 
       {/* Summary Cards */}

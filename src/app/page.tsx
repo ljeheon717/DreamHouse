@@ -26,7 +26,7 @@ export default function DashboardPage() {
       ? Math.round(properties.reduce((s, p) => s + p.price, 0) / properties.length)
       : 0;
 
-  const areas = ['Tokyo23', 'Osaka', 'Nagoya', 'Fukuoka'];
+  const areas = ['Tokyo23', 'Yokohama', 'Saitama', 'ChibaWest'];
   const latestByArea = areas.map((area) => {
     const areaData = marketTrends
       .filter((t) => t.area === area)
@@ -88,7 +88,7 @@ export default function DashboardPage() {
       {/* Market Overview */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">主要エリア 市場概況</h2>
+          <h2 className="text-lg font-bold text-gray-900">首都圏 市場概況</h2>
           <Link href="/market" className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
             詳細を見る <ArrowRight size={14} />
           </Link>

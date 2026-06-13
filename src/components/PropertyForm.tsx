@@ -46,7 +46,7 @@ export default function PropertyForm({ initial, onSubmit, onClose }: Props) {
     onSubmit({ ...form, tags });
   }
 
-  const areas = ['東京23区', '東京市部', '大阪市', '名古屋市', '福岡市', '横浜市', 'さいたま市', '千葉市', '神戸市', '京都市', 'その他'];
+  const areas = ['東京23区', '東京市部', '横浜市', '川崎市', '千葉市', '市川市', '船橋市', '松戸市', '柏市', 'さいたま市', '川口市', 'その他'];
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
